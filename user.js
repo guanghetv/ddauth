@@ -5,7 +5,7 @@ const {dd,snsExpire} = require('./config')
 const accounts = require('./accounts')
 
 const auth = async(ctx) => {
-    console.log(`redirect params: ${ctx.params}`);
+    console.log(`verify params: ${JSON.stringify(ctx.params)}`);x
 
     // {
     //     "errcode": 0,
@@ -70,12 +70,12 @@ const auth = async(ctx) => {
         }
     }
     // TODO: homepage
-    if(!pass) ctx.redirect('');
+    if(!pass) ctx.redirect('http://www.baidu.com');
 }
 
 const verify = async (ctx) => {
     // {sns, type}
-    console.log(`verify params: ${ctx.params}`);
+    console.log(`verify params: ${JSON.stringify(ctx.params)}`);
 
     dd.snsCache = dd.snsCache || {vip: {}, active: {}}
     const cache = dd.snsCache[ctx.params.type] || {};
@@ -93,7 +93,7 @@ const verify = async (ctx) => {
 
     // TODO: homepage
     if(ctx.body != 'ok')
-        ctx.redirect('');
+        ctx.redirect('http://www.baidu.com');
 }
 
 module.exports = {

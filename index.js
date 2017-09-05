@@ -2,7 +2,7 @@ const Koa = require('koa')
 const app = new Koa()
 const router = require('koa-router')()
 
-const {url} = require('./config')
+const {dd, url} = require('./config')
 const accessToken = require('./accessToken')
 
 const user = require('./user')
@@ -18,5 +18,7 @@ app
     .use(router.routes())
     .use(router.allowedMethods())
 
+console.log(dd.loginUrl)
 // console.log(uri.port)
 app.listen(url.port, () => accessToken.cron())    // 定期更新accessToken
+
