@@ -2,32 +2,21 @@ const Koa = require('koa')
 const app = new Koa()
 const router = require('koa-router')()
 
-const URL = require('./config').URL
+const {url} = require('./config')
+const accessToken = require('./accessToken')
+
+const user = require('./user')
 
 router
-    .get('/', async ctx => {
-        ctx.body = 'Hello World!'
-    })
-    .get('/token/:type/:id', async ctx => {
-        // TODO:
-        if (ctx.params.type == 'ok')
-            ctx.body = 'ok';
-        else
-            ctx.throw(401);
-    })
-    .get('/callback', function *(next) {
-        ctx.body = 'callback'
-    })
-    .put('/users/:id', function *(next) {
-        // ...
-    })
-    .del('/users/:id', function *(next) {
-        // ...
-    })
+    .get('/', async ctx => ctx.body = 'Hello World!')
+    .get('/token/verify/:type/:sns', user.verify)
+    .post('/accessToken/update', accessToken.update)
+    .get('/callback', async ctx => ctx.body = 'callback')
+    .get('/redirect', user.auth)
 
 app
     .use(router.routes())
     .use(router.allowedMethods())
 
-// console.log(URL.port)
-app.listen(URL.port)
+// console.log(uri.port)
+app.listen(url.port, () => accessToken.cron())    // 定期更新accessToken

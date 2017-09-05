@@ -9,3 +9,5 @@ gpg (GnuPG) 1.4.20
 git-secret
 ```
 
+## Suggestion
+check git-secret doc.
