@@ -1,0 +1,17 @@
+[
+  {
+    "name": "ddauth",
+    "script": "index.js",
+    "interpreter":"node@8.1.2",
+    "exec_mode" : "fork",
+    "instances" : 1,
+    "args": "log",
+    "log_date_format": "YYYY-MM-DD HH:mm Z",
+    "watch": false,
+    "merge_logs"  : true,
+    "env": {
+      "NODE_PORT": 10010,
+      "NODE_ENV": "production"
+    }
+  }
+]

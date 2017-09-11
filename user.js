@@ -1,11 +1,11 @@
 const request = require('request-promise')
 const {URLSearchParams} = require('url')
 
-const {dd,snsExpire} = require('./config')
+const {dd, snsExpire} = require('./config')
 const accounts = require('./accounts')
 
 const auth = async(ctx) => {
-    console.log(`verify params: ${JSON.stringify(ctx.params)}`);x
+    console.log(`verify params: ${JSON.stringify(ctx.params)}`);
 
     // {
     //     "errcode": 0,
@@ -63,26 +63,26 @@ const auth = async(ctx) => {
             pass = true
 
             //redirect
-            const params = new URLSearchParams({sns:sns.sns_token,type})
+            const params = new URLSearchParams({sns: sns.sns_token, type})
             target.search = params.toString()
             ctx.redirect(target.href)
             break
         }
     }
     // TODO: homepage
-    if(!pass) ctx.redirect('http://www.baidu.com');
+    if (!pass) ctx.redirect('http://www.baidu.com');
 }
 
-const verify = async (ctx) => {
+const verify = async(ctx) => {
     // {sns, type}
-    console.log(`verify params: ${JSON.stringify(ctx.params)}`);
+    console.log(`verify params: ${JSON.stringify(ctx.params)}`)
 
     dd.snsCache = dd.snsCache || {vip: {}, active: {}}
-    const cache = dd.snsCache[ctx.params.type] || {};
+    const cache = dd.snsCache[ctx.params.type] || {}
     for (let snsId in cache) {
         if (snsId == ctx.params.sns) {
             const timestamp = Date.now()
-            if (timestamp - cache[snsId] <= snsExpire){
+            if (timestamp - cache[snsId] <= snsExpire) {
                 ctx.body = 'ok'
             } else {
                 delete cache[snsId]
@@ -92,8 +92,8 @@ const verify = async (ctx) => {
     }
 
     // TODO: homepage
-    if(ctx.body != 'ok')
-        ctx.redirect('http://www.baidu.com');
+    if (ctx.body != 'ok')
+        ctx.redirect('http://www.baidu.com')
 }
 
 module.exports = {
