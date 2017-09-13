@@ -1,11 +1,10 @@
 const request = require('request-promise')
 const {URLSearchParams} = require('url')
-
 const {dd, snsExpire} = require('./config')
 const accounts = require('./accounts')
 
-const auth = async(ctx) => {
-    console.log(`verify params: ${JSON.stringify(ctx.params)}`);
+const requestUserInfo = async(ctx) => {
+    // console.log(ctx.request.query)
 
     // {
     //     "errcode": 0,
@@ -14,11 +13,19 @@ const auth = async(ctx) => {
     //     "persistent_code": "dsa-d-asdasdadHIBIinoninINIn-ssdasd",
     //     "unionid": "7Huu46kk"
     // }
-    const persist = await request.post(
-        `https://oapi.dingtalk.com/sns/get_persistent_code?access_token=` + dd.accessToken,
-        {tmp_auth_code: ctx.params.code},
-        {json: true}
+    const persist = await request(
+        {
+            method: 'POST',
+            uri: `https://oapi.dingtalk.com/sns/get_persistent_code?access_token=` + dd.accessToken,
+            body: {tmp_auth_code: ctx.request.query.code},
+            json: true
+        }
     )
+    if (persist.errcode) {
+        console.error(persist.errmsg)
+        return null;
+    }
+
 
     // {
     //     "errcode": 0,
@@ -26,14 +33,21 @@ const auth = async(ctx) => {
     //     "expires_in": 7200,
     //     "sns_token": "c76dsc87ds6c876sd87csdcxxxxx"
     // }
-    const sns = await request.post(
-        `https://oapi.dingtalk.com/sns/get_sns_token?access_token=` + dd.accessToken,
+    const sns = await request(
         {
-            openid: persist.openid,
-            persistent_code: persist.persistent_code
-        },
-        {json: true}
-    )
+            method: 'POST',
+            uri: `https://oapi.dingtalk.com/sns/get_sns_token?access_token=` + dd.accessToken,
+            body: {
+                openid: persist.openid,
+                persistent_code: persist.persistent_code
+            },
+            json: true
+        }
+    );
+    if (sns.errcode) {
+        console.error(sns.errmsg)
+        return null;
+    }
 
     // {
     //     "errcode": 0,
@@ -48,36 +62,58 @@ const auth = async(ctx) => {
     // }
     const userInfo = await request(
         `https://oapi.dingtalk.com/sns/getuserinfo?sns_token=` + sns.sns_token, {json: true})
+    if (userInfo.errcode) {
+        console.error(sns.errmsg)
+        return null;
+    } else {
+        userInfo.sns = sns
+        console.info(`userInfo:${userInfo}`)
+        return userInfo
+    }
 
+}
+
+const auth = async(ctx) => {
+    // console.log(ctx.request.query)
+
+    // http://127.0.0.1:10010/redirect?code=8376b783ae023efeb73181c7a98e85fc&state=STATE
+
+    console.log(ctx.request.header.referrer)
+    let userInfo = requestUserInfo(ctx)
+    // TODO: refer 鉴权
+    // if(ctx.request.header.referrer == ''){
+    //     userInfo = requestUserInfo(ctx)
+    // }
 
     let pass = false
     for (let type in accounts) {
         if (accounts[type].includes(userInfo.dingId)) {
-            // update cache
-            const timestamp = Date.now()
+            // init cache
             dd.snsCache = dd.snsCache || {vip: {}, active: {}}
             dd.snsCache[type] = dd.snsCache[type] || {}
-            dd.snsCache[type][sns.sns_token] = timestamp
+
+            // update
+            const timestamp = Date.now()
+            dd.snsCache[type][userInfo.sns.sns_token] = timestamp
             console.log(dd.snsCache)
 
             pass = true
 
             //redirect
-            const params = new URLSearchParams({sns: sns.sns_token, type})
-            target.search = params.toString()
+            ctx.header('sns', userInfo.sns.sns_token)
+            ctx.header('type', type)
             ctx.redirect(target.href)
             break
         }
     }
-    // TODO: homepage
-    if (!pass) ctx.redirect('http://www.baidu.com');
+
+    if (!pass) ctx.redirect(dd.loginUrl);
 }
 
 const verify = async(ctx) => {
     // {sns, type}
     console.log(`verify params: ${JSON.stringify(ctx.params)}`)
 
-    dd.snsCache = dd.snsCache || {vip: {}, active: {}}
     const cache = dd.snsCache[ctx.params.type] || {}
     for (let snsId in cache) {
         if (snsId == ctx.params.sns) {
@@ -91,9 +127,10 @@ const verify = async(ctx) => {
         }
     }
 
-    // TODO: homepage
-    if (ctx.body != 'ok')
-        ctx.redirect('http://www.baidu.com')
+    if (ctx.body != 'ok') {
+        ctx.body = 'Unauthorized'
+        ctx.status = 401;
+    }
 }
 
 module.exports = {
