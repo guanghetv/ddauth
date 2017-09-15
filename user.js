@@ -1,6 +1,6 @@
 const request = require('request-promise')
 const {URLSearchParams} = require('url')
-const {dd, snsExpire} = require('./config')
+const {dd, target, snsExpire} = require('./config')
 const accounts = require('./accounts')
 
 const requestUserInfo = async(ctx) => {
@@ -78,7 +78,7 @@ const auth = async(ctx) => {
 
     // http://127.0.0.1:10010/redirect?code=8376b783ae023efeb73181c7a98e85fc&state=STATE
 
-    console.log(ctx.request.header.referrer)
+    // console.log(ctx.request.header)
     let userInfo = requestUserInfo(ctx)
     // TODO: refer 鉴权
     // if(ctx.request.header.referrer == ''){
@@ -86,8 +86,22 @@ const auth = async(ctx) => {
     // }
 
     let pass = false
+
+    // TEST
+    // let userInfo = {
+    //     "errcode": 0,
+    //     "errmsg": "ok",
+    //     "user_info": {
+    //         "nick": "李诺",
+    //         "unionid": "jiiH19BujV6ciE",
+    //         "dingId": "$:LWCP_v1:$RY0eN+V7dh9NpfeVRvVgWQ==",
+    //         "openid": "PpmYpdLxNksiE"
+    //     },
+    //     "sns": {"errcode": 0, "errmsg": "ok", "sns_token": "9259703991283ecd89d6232d6f6a32b0", "expires_in": 7200}
+    // }
+
     for (let type in accounts) {
-        if (accounts[type].includes(userInfo.dingId)) {
+        if (accounts[type].includes(userInfo.user_info.dingId)) {
             // init cache
             dd.snsCache = dd.snsCache || {vip: {}, active: {}}
             dd.snsCache[type] = dd.snsCache[type] || {}
@@ -100,8 +114,8 @@ const auth = async(ctx) => {
             pass = true
 
             //redirect
-            ctx.header('sns', userInfo.sns.sns_token)
-            ctx.header('type', type)
+            ctx.response.set('sns', userInfo.sns.sns_token)
+            ctx.response.set('type', type)
             ctx.redirect(target.href)
             break
         }
