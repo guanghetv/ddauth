@@ -67,7 +67,7 @@ const requestUserInfo = async(ctx) => {
         return null;
     } else {
         userInfo.sns = sns
-        console.info(`userInfo:${userInfo}`)
+        console.info(`userInfo:${JSON.stringify(userInfo)}`)
         return userInfo
     }
 
