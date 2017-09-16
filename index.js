@@ -8,7 +8,7 @@ const accessToken = require('./accessToken')
 const user = require('./user')
 
 router
-    .get('/', async ctx => ctx.body = 'Hello World!')
+    .get('/', async ctx => ctx.redirect(dd.loginUrl))
     .get('/token/verify/:type/:sns', user.verify)
     .post('/accessToken/update', accessToken.update)
     .get('/callback', async ctx => ctx.body = 'callback')
