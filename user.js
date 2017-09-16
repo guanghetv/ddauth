@@ -121,7 +121,7 @@ const auth = async(ctx) => {
         }
     }
 
-    if (!pass) ctx.redirect(dd.loginUrl);
+    if (!pass) ctx.redirect('/')
 }
 
 const verify = async(ctx) => {
