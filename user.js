@@ -79,7 +79,7 @@ const auth = async(ctx) => {
     // http://127.0.0.1:10010/redirect?code=8376b783ae023efeb73181c7a98e85fc&state=STATE
 
     // console.log(ctx.request.header)
-    let userInfo = requestUserInfo(ctx)
+    let userInfo = await requestUserInfo(ctx)
     // TODO: refer 鉴权
     // if(ctx.request.header.referrer == ''){
     //     userInfo = requestUserInfo(ctx)
