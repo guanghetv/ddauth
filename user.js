@@ -1,3 +1,4 @@
+const qs = require('querystring')
 const request = require('request-promise')
 const {URLSearchParams} = require('url')
 const {dd, target, snsExpire} = require('./config')
@@ -108,15 +109,13 @@ const auth = async(ctx) => {
 
             // update
             const timestamp = Date.now()
-            dd.snsCache[type][userInfo.sns.sns_token] = timestamp
+            dd.snsCache[type][userInfo.sns.sns_token] = {timestamp}
             console.log(dd.snsCache)
 
             pass = true
 
             //redirect
-            ctx.response.set('sns', userInfo.sns.sns_token)
-            ctx.response.set('type', type)
-            ctx.redirect(target.href)
+            ctx.redirect(target.href+'?='+qs.stringify({sns:userInfo.sns.sns_token,type}))
             break
         }
     }
@@ -132,8 +131,13 @@ const verify = async(ctx) => {
     for (let snsId in cache) {
         if (snsId == ctx.params.sns) {
             const timestamp = Date.now()
-            if (timestamp - cache[snsId] <= snsExpire) {
-                ctx.body = 'ok'
+            if (timestamp - cache[snsId]['timestamp'] <= snsExpire) {
+                cache[snsId].token = cache[snsId].token || ctx.params.token
+                if(cache[snsId].token == ctx.params.token){
+                    ctx.body = 'ok'
+                } else {
+                    break
+                }
             } else {
                 delete cache[snsId]
             }

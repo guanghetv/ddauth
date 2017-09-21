@@ -9,7 +9,7 @@ const user = require('./user')
 
 router
     .get('/', async ctx => ctx.redirect(dd.loginUrl))
-    .get('/token/verify/:type/:sns', user.verify)
+    .get('/token/verify/:type/:sns/:token', user.verify)
     .post('/accessToken/update', accessToken.update)
     .get('/callback', async ctx => ctx.body = 'callback')
     .get('/redirect', user.auth)
