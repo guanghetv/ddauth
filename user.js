@@ -115,7 +115,7 @@ const auth = async(ctx) => {
             pass = true
 
             //redirect
-            ctx.redirect(target.href+'?='+qs.stringify({sns:userInfo.sns.sns_token,type}))
+            ctx.redirect(target.href+'?'+qs.stringify({sns:userInfo.sns.sns_token,type}))
             break
         }
     }
