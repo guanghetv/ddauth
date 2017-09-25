@@ -1,7 +1,7 @@
 const qs = require('querystring')
 const request = require('request-promise')
 const {URLSearchParams} = require('url')
-const {dd, target, snsExpire} = require('./config')
+const {dd, target, delay} = require('./config')
 const accounts = require('./accounts')
 
 const requestUserInfo = async(ctx) => {
@@ -131,7 +131,7 @@ const verify = async(ctx) => {
     for (let snsId in cache) {
         if (snsId == ctx.params.sns) {
             const timestamp = Date.now()
-            if (timestamp - cache[snsId]['timestamp'] <= snsExpire) {
+            if (timestamp - cache[snsId]['timestamp'] <= delay) {
                 cache[snsId].token = cache[snsId].token || ctx.params.token
                 if(cache[snsId].token == ctx.params.token){
                     ctx.body = 'ok'
