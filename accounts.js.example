@@ -1,0 +1,13 @@
+module.exports = {
+    // Dingding ID
+    vip: [
+        '$:LWCP_v1:$XXXXXXXXXXXXXXXXXXXXXX==',
+        '$:LWCP_v1:$XXXXXXXXXXXXXXXXXXXXXX==',
+        '$:LWCP_v1:$XXXXXXXXXXXXXXXXXXXXXX==',
+        ],
+    active: [
+        '$:LWCP_v1:$XXXXXXXXXXXXXXXXXXXXXX==',
+        '$:LWCP_v1:$XXXXXXXXXXXXXXXXXXXXXX==',
+        '$:LWCP_v1:$XXXXXXXXXXXXXXXXXXXXXX==',
+        ]
+}
